@@ -1,0 +1,9 @@
+Proprietary License
+
+All rights reserved. This software and its documentation are proprietary property of Anthropic, Inc.
+
+The text-refinement skill may only be used by Claude and authorized Anthropic personnel for the purpose of refining and rewriting text content using reference writing styles.
+
+No part of this skill may be reproduced, distributed, or transmitted in any form or by any means, including photocopying, recording, or other electronic or mechanical methods, without the prior written permission of Anthropic, Inc.
+
+Unauthorized use, reproduction, or distribution of this skill may result in severe civil and criminal penalties, and will be prosecuted to the maximum extent possible under law.
