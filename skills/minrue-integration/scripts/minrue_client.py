@@ -46,12 +46,23 @@ class MinRueClient:
         """Create HTTP session with retry logic"""
         session = requests.Session()
         
-        retry_strategy = Retry(
-            total=retries,
-            backoff_factor=1,
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS", "TRACE"]
-        )
+        # Handle both old and new urllib3 versions
+        try:
+            # For urllib3 v2.0+
+            retry_strategy = Retry(
+                total=retries,
+                backoff_factor=1,
+                status_forcelist=[429, 500, 502, 503, 504],
+                allowed_methods=["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS", "TRACE"]
+            )
+        except TypeError:
+            # For urllib3 v1.x
+            retry_strategy = Retry(
+                total=retries,
+                backoff_factor=1,
+                status_forcelist=[429, 500, 502, 503, 504],
+                method_whitelist=["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS", "TRACE"]
+            )
         
         adapter = HTTPAdapter(max_retries=retry_strategy)
         session.mount("http://", adapter)
