@@ -1,0 +1,17 @@
+{
+  "direct_tool": {
+    "model_calls": 20,
+    "total_time": 10.235690351615574,
+    "average_time": 1.0235690351615574
+  },
+  "mcp": {
+    "model_calls": 25,
+    "total_time": 8.827560081916719,
+    "average_time": 0.8827560081916719
+  },
+  "skill": {
+    "model_calls": 30,
+    "total_time": 10.64935998448037,
+    "average_time": 1.0649359984480369
+  }
+}

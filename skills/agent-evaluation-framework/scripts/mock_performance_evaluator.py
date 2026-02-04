@@ -17,14 +17,44 @@ class MockPerformanceEvaluator:
         self.model_name = model_name
         self.results = {}
     
+    def _generate_tools_for_task(self, task: str):
+        """根据用户任务动态生成工具"""
+        tools = []
+        system_prompt = ""
+        
+        # 分析任务内容，识别需要的工具
+        task_lower = task.lower()
+        
+        if "天气" in task_lower or "temperature" in task_lower:
+            tools.append("get_weather")
+            system_prompt = "你是一个天气助手，可以回答天气相关问题"
+        
+        elif "位置" in task_lower or "location" in task_lower:
+            tools.extend(["get_location", "get_weather"])
+            system_prompt = "你是一个位置和天气助手，可以回答位置和天气相关问题"
+        
+        elif "文档" in task_lower or "document" in task_lower or "langgraph" in task_lower:
+            tools.append("search_document")
+            system_prompt = "你是一个文档助手，可以基于文档回答问题"
+        
+        else:
+            tools.append("general_assistant")
+            system_prompt = "你是一个通用助手，可以回答各种问题"
+        
+        return tools, system_prompt
+    
     def evaluate_direct_tool(self, task: str, iterations: int = 5) -> Dict[str, Any]:
         """评估直接Tool方案"""
+        tools, _ = self._generate_tools_for_task(task)
+        
         total_time = 0
         model_calls = 0
         
         for i in range(iterations):
-            # 模拟执行时间
-            exec_time = random.uniform(0.5, 1.2)
+            # 根据工具数量调整模拟执行时间
+            base_time = 0.5
+            tool_overhead = len(tools) * 0.1
+            exec_time = random.uniform(base_time, base_time + 0.7 + tool_overhead)
             total_time += exec_time
             model_calls += 1
         
@@ -34,7 +64,8 @@ class MockPerformanceEvaluator:
             "model_calls": model_calls,
             "total_time": total_time,
             "average_time": avg_time,
-            "iterations": iterations
+            "iterations": iterations,
+            "tools_used": tools
         }
         
         self.results["direct_tool"] = result
@@ -42,6 +73,8 @@ class MockPerformanceEvaluator:
     
     def evaluate_mcp(self, task: str, iterations: int = 5) -> Dict[str, Any]:
         """评估MCP方案"""
+        _, _ = self._generate_tools_for_task(task)
+        
         total_time = 0
         model_calls = 0
         
@@ -65,12 +98,16 @@ class MockPerformanceEvaluator:
     
     def evaluate_skill(self, task: str, iterations: int = 5) -> Dict[str, Any]:
         """评估Skill方案"""
+        tools, _ = self._generate_tools_for_task(task)
+        
         total_time = 0
         model_calls = 0
         
         for i in range(iterations):
-            # 模拟执行时间
-            exec_time = random.uniform(0.6, 1.4)
+            # 根据工具数量调整模拟执行时间
+            base_time = 0.6
+            tool_overhead = len(tools) * 0.15
+            exec_time = random.uniform(base_time, base_time + 0.8 + tool_overhead)
             total_time += exec_time
             model_calls += 1
         
@@ -80,7 +117,8 @@ class MockPerformanceEvaluator:
             "model_calls": model_calls,
             "total_time": total_time,
             "average_time": avg_time,
-            "iterations": iterations
+            "iterations": iterations,
+            "tools_used": tools
         }
         
         self.results["skill"] = result

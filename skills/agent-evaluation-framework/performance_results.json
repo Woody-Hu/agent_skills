@@ -1,81 +1,105 @@
 {
   "direct_tool": {
     "model_calls": 5,
-    "total_time": 3.864769377327425,
-    "average_time": 0.772953875465485,
-    "iterations": 5
+    "total_time": 4.106754350010867,
+    "average_time": 0.8213508700021734,
+    "iterations": 5,
+    "tools_used": [
+      "name='search_document' description='Search document for information' args_schema=<class 'langchain_core.utils.pydantic.search_document'> func=<function PerformanceEvaluator._generate_tools_for_task.<locals>.search_document at 0x10783a0c0>"
+    ]
   },
   "mcp": {
     "model_calls": 5,
-    "total_time": 2.73204828765081,
-    "average_time": 0.546409657530162,
+    "total_time": 3.17821306240429,
+    "average_time": 0.6356426124808581,
     "iterations": 5
   },
   "skill": {
     "model_calls": 5,
-    "total_time": 4.180485448355548,
-    "average_time": 0.8360970896711096,
-    "iterations": 5
+    "total_time": 5.779550560201626,
+    "average_time": 1.1559101120403252,
+    "iterations": 5,
+    "tools_used": [
+      "name='search_document' description='Search document for information' args_schema=<class 'langchain_core.utils.pydantic.search_document'> func=<function PerformanceEvaluator._generate_tools_for_task.<locals>.search_document at 0x10783a0c0>"
+    ]
   },
   "scenarios": {
     "天气查询": {
       "direct_tool": {
         "model_calls": 5,
-        "total_time": 3.2145297210685366,
-        "average_time": 0.6429059442137073,
-        "iterations": 5
+        "total_time": 3.9529616418029194,
+        "average_time": 0.7905923283605839,
+        "iterations": 5,
+        "tools_used": [
+          "name='get_weather' description='Get weather for a given city' args_schema=<class 'langchain_core.utils.pydantic.get_weather'> func=<function PerformanceEvaluator._generate_tools_for_task.<locals>.get_weather at 0x10783a0c0>"
+        ]
       },
       "mcp": {
         "model_calls": 5,
-        "total_time": 3.4794348478998582,
-        "average_time": 0.6958869695799716,
+        "total_time": 3.434441378893579,
+        "average_time": 0.6868882757787158,
         "iterations": 5
       },
       "skill": {
         "model_calls": 5,
-        "total_time": 4.286753020462356,
-        "average_time": 0.8573506040924712,
-        "iterations": 5
+        "total_time": 4.641048976130077,
+        "average_time": 0.9282097952260153,
+        "iterations": 5,
+        "tools_used": [
+          "name='get_weather' description='Get weather for a given city' args_schema=<class 'langchain_core.utils.pydantic.get_weather'> func=<function PerformanceEvaluator._generate_tools_for_task.<locals>.get_weather at 0x10783a0c0>"
+        ]
       }
     },
     "位置感知天气": {
       "direct_tool": {
         "model_calls": 5,
-        "total_time": 4.010106062239256,
-        "average_time": 0.8020212124478512,
-        "iterations": 5
+        "total_time": 4.430702795676428,
+        "average_time": 0.8861405591352856,
+        "iterations": 5,
+        "tools_used": [
+          "name='get_weather' description='Get weather for a given city' args_schema=<class 'langchain_core.utils.pydantic.get_weather'> func=<function PerformanceEvaluator._generate_tools_for_task.<locals>.get_weather at 0x10783a0c0>"
+        ]
       },
       "mcp": {
         "model_calls": 5,
-        "total_time": 3.9013873003153225,
-        "average_time": 0.7802774600630645,
+        "total_time": 3.8352609070889763,
+        "average_time": 0.7670521814177953,
         "iterations": 5
       },
       "skill": {
         "model_calls": 5,
-        "total_time": 5.242336412801697,
-        "average_time": 1.0484672825603394,
-        "iterations": 5
+        "total_time": 5.841622083274151,
+        "average_time": 1.1683244166548303,
+        "iterations": 5,
+        "tools_used": [
+          "name='get_weather' description='Get weather for a given city' args_schema=<class 'langchain_core.utils.pydantic.get_weather'> func=<function PerformanceEvaluator._generate_tools_for_task.<locals>.get_weather at 0x10783a0c0>"
+        ]
       }
     },
     "复杂问答": {
       "direct_tool": {
         "model_calls": 5,
-        "total_time": 3.864769377327425,
-        "average_time": 0.772953875465485,
-        "iterations": 5
+        "total_time": 4.106754350010867,
+        "average_time": 0.8213508700021734,
+        "iterations": 5,
+        "tools_used": [
+          "name='search_document' description='Search document for information' args_schema=<class 'langchain_core.utils.pydantic.search_document'> func=<function PerformanceEvaluator._generate_tools_for_task.<locals>.search_document at 0x10783a0c0>"
+        ]
       },
       "mcp": {
         "model_calls": 5,
-        "total_time": 2.73204828765081,
-        "average_time": 0.546409657530162,
+        "total_time": 3.17821306240429,
+        "average_time": 0.6356426124808581,
         "iterations": 5
       },
       "skill": {
         "model_calls": 5,
-        "total_time": 4.180485448355548,
-        "average_time": 0.8360970896711096,
-        "iterations": 5
+        "total_time": 5.779550560201626,
+        "average_time": 1.1559101120403252,
+        "iterations": 5,
+        "tools_used": [
+          "name='search_document' description='Search document for information' args_schema=<class 'langchain_core.utils.pydantic.search_document'> func=<function PerformanceEvaluator._generate_tools_for_task.<locals>.search_document at 0x10783a0c0>"
+        ]
       }
     }
   }

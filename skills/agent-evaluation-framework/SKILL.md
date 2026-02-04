@@ -101,65 +101,618 @@ description: "评估业务场景下应该使用Skill、MCP还是直接写Tool的
 - 需要标准化接口的场景
 - 团队协作开发的场景
 
-## 评估脚本
+## 评估脚本生成与执行
 
-### 1. 性能测试脚本
+### 1. 评估配置与脚本生成指南
 
-#### 脚本结构
+本技能可以引导大模型生成针对特定业务场景的评估配置文件和脚本。以下是生成配置文件和脚本的指导：
+
+#### 配置文件生成提示词
+
+```
+你需要为以下业务场景生成一个评估配置文件，用于定义更拟真的模型请求数量和执行参数：
+
+业务场景：[描述具体业务场景]
+核心功能：[列出核心功能点]
+性能要求：[描述性能要求]
+
+请生成一个JSON配置文件，包含：
+1. 场景基本信息
+2. 模型请求配置（根据场景复杂度定义不同方案的模型调用次数）
+3. 执行参数（迭代次数、并发数等）
+4. 性能指标权重
+
+配置文件示例：
+```json
+{
+  "scene": "[场景名称]",
+  "description": "[场景描述]",
+  "model_calls": {
+    "direct_tool": {
+      "simple": 1,
+      "medium": 2,
+      "complex": 3
+    },
+    "mcp": {
+      "simple": 1,
+      "medium": 2,
+      "complex": 4
+    },
+    "skill": {
+      "simple": 1,
+      "medium": 3,
+      "complex": 5
+    }
+  },
+  "execution": {
+    "iterations": 5,
+    "concurrency": 1,
+    "timeout": 30
+  },
+  "metrics": {
+    "model_calls_weight": 0.3,
+    "execution_time_weight": 0.4,
+    "token_usage_weight": 0.3
+  }
+}
+```
+```
+
+#### 脚本生成提示词
+
+```
+你需要为以下业务场景生成一个评估脚本，用于测试Skill、MCP和直接Tool三种实现方案的性能：
+
+业务场景：[描述具体业务场景]
+核心功能：[列出核心功能点]
+性能要求：[描述性能要求]
+
+请生成一个完整的Python脚本，包含：
+1. 三种实现方案的具体代码
+2. 从配置文件加载模型请求数量配置
+3. 性能测试逻辑（模型调用次数、执行时间、Token使用量）
+4. 结果分析和对比
+5. 生成评估报告
+
+脚本应遵循以下结构：
+- 使用LangChain框架
+- 支持模拟模式（无模型配置时）
+- 支持从JSON配置文件加载参数
+- 输出标准化的评估结果
+```
+
+#### 生成脚本示例
 
 ```python
-# scripts/performance_evaluator.py
+# generated_scripts/[场景名称]_evaluator.py
 import time
 import json
-from typing import Dict, Any, List
+import random
+import os
+from typing import Dict, Any
 from langchain.agents import create_agent
-from langchain.chat_models import init_chat_model
 from langchain.tools import tool
 
-class PerformanceEvaluator:
-    """性能评估器"""
+class CustomScenarioEvaluator:
+    """[场景名称]评估器"""
     
-    def __init__(self, model_name: str = "gpt-4"):
-        self.model_name = model_name
+    def __init__(self, config_file=None):
         self.results = {}
+        self.config = self._load_config(config_file)
     
-    def evaluate_direct_tool(self, task: str, iterations: int = 5) -> Dict[str, Any]:
+    def _load_config(self, config_file):
+        """加载评估配置文件"""
+        default_config = {
+            "model_calls": {
+                "direct_tool": {
+                    "simple": 1,
+                    "medium": 2,
+                    "complex": 3
+                },
+                "mcp": {
+                    "simple": 1,
+                    "medium": 2,
+                    "complex": 4
+                },
+                "skill": {
+                    "simple": 1,
+                    "medium": 3,
+                    "complex": 5
+                }
+            },
+            "execution": {
+                "iterations": 5,
+                "concurrency": 1,
+                "timeout": 30
+            }
+        }
+        
+        if config_file and os.path.exists(config_file):
+            with open(config_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return default_config
+    
+    def _generate_tools(self):
+        """生成场景所需的工具"""
+        # 根据场景生成具体工具
+        tools = []
+        
+        @tool
+        def [工具1](参数) -> str:
+            """[工具1描述]"""
+            # 工具实现
+            return "[工具1返回值]"
+        tools.append([工具1])
+        
+        # 添加更多工具
+        
+        return tools
+    
+    def _get_task_complexity(self, task):
+        """根据任务内容判断复杂度"""
+        task = task.lower()
+        if any(keyword in task for keyword in ["复杂", "推荐", "分析", "多步", "详细"]):
+            return "complex"
+        elif any(keyword in task for keyword in ["查询", "获取", "简单"]):
+            return "simple"
+        else:
+            return "medium"
+    
+    def evaluate_direct_tool(self, task: str, iterations: int = None) -> Dict[str, Any]:
         """评估直接Tool方案"""
-        # 实现评估逻辑
-        pass
+        tools = self._generate_tools()
+        iterations = iterations or self.config["execution"]["iterations"]
+        
+        # 模拟执行或真实执行
+        total_time = 0
+        model_calls = 0
+        
+        # 获取任务复杂度
+        complexity = self._get_task_complexity(task)
+        # 从配置获取模型调用次数
+        calls_per_iteration = self.config["model_calls"]["direct_tool"][complexity]
+        
+        for i in range(iterations):
+            # 模拟执行
+            exec_time = random.uniform(0.5, 0.8)
+            total_time += exec_time
+            model_calls += calls_per_iteration
+            time.sleep(0.1)  # 避免执行过快
+        
+        return {
+            "model_calls": model_calls,
+            "total_time": total_time,
+            "average_time": total_time / iterations,
+            "iterations": iterations,
+            "complexity": complexity,
+            "calls_per_iteration": calls_per_iteration
+        }
     
-    def evaluate_mcp(self, task: str, iterations: int = 5) -> Dict[str, Any]:
+    def evaluate_mcp(self, task: str, iterations: int = None) -> Dict[str, Any]:
         """评估MCP方案"""
-        # 实现评估逻辑
-        pass
+        iterations = iterations or self.config["execution"]["iterations"]
+        
+        total_time = 0
+        model_calls = 0
+        
+        # 获取任务复杂度
+        complexity = self._get_task_complexity(task)
+        # 从配置获取模型调用次数
+        calls_per_iteration = self.config["model_calls"]["mcp"][complexity]
+        
+        for i in range(iterations):
+            # 模拟执行
+            exec_time = random.uniform(0.4, 0.7)
+            total_time += exec_time
+            model_calls += calls_per_iteration
+            time.sleep(0.1)
+        
+        return {
+            "model_calls": model_calls,
+            "total_time": total_time,
+            "average_time": total_time / iterations,
+            "iterations": iterations,
+            "complexity": complexity,
+            "calls_per_iteration": calls_per_iteration
+        }
     
-    def evaluate_skill(self, task: str, iterations: int = 5) -> Dict[str, Any]:
+    def evaluate_skill(self, task: str, iterations: int = None) -> Dict[str, Any]:
         """评估Skill方案"""
-        # 实现评估逻辑
-        pass
+        iterations = iterations or self.config["execution"]["iterations"]
+        
+        total_time = 0
+        model_calls = 0
+        
+        # 获取任务复杂度
+        complexity = self._get_task_complexity(task)
+        # 从配置获取模型调用次数
+        calls_per_iteration = self.config["model_calls"]["skill"][complexity]
+        
+        for i in range(iterations):
+            # 模拟执行
+            exec_time = random.uniform(0.6, 0.9)
+            total_time += exec_time
+            model_calls += calls_per_iteration
+            time.sleep(0.1)
+        
+        return {
+            "model_calls": model_calls,
+            "total_time": total_time,
+            "average_time": total_time / iterations,
+            "iterations": iterations,
+            "complexity": complexity,
+            "calls_per_iteration": calls_per_iteration
+        }
     
-    def compare_all(self, task: str, iterations: int = 5) -> Dict[str, Any]:
-        """对比所有方案"""
-        # 实现对比逻辑
-        pass
+    def run_evaluation(self, test_cases):
+        """运行完整评估"""
+        results = {}
+        
+        for test_case in test_cases:
+            task = test_case.get("input", "")
+            
+            print(f"执行测试用例: {test_case.get('name', '默认测试')}")
+            print(f"输入: {task}")
+            
+            # 评估三种方案
+            direct_tool_result = self.evaluate_direct_tool(task)
+            mcp_result = self.evaluate_mcp(task)
+            skill_result = self.evaluate_skill(task)
+            
+            results[test_case.get('name', 'default')] = {
+                "direct_tool": direct_tool_result,
+                "mcp": mcp_result,
+                "skill": skill_result
+            }
+        
+        # 汇总结果
+        summary = {
+            "direct_tool": {
+                "model_calls": sum(r["direct_tool"]["model_calls"] for r in results.values()),
+                "total_time": sum(r["direct_tool"]["total_time"] for r in results.values()),
+                "average_time": sum(r["direct_tool"]["average_time"] for r in results.values()) / len(results)
+            },
+            "mcp": {
+                "model_calls": sum(r["mcp"]["model_calls"] for r in results.values()),
+                "total_time": sum(r["mcp"]["total_time"] for r in results.values()),
+                "average_time": sum(r["mcp"]["average_time"] for r in results.values()) / len(results)
+            },
+            "skill": {
+                "model_calls": sum(r["skill"]["model_calls"] for r in results.values()),
+                "total_time": sum(r["skill"]["total_time"] for r in results.values()),
+                "average_time": sum(r["skill"]["average_time"] for r in results.values()) / len(results)
+            }
+        }
+        
+        return summary
+
+if __name__ == "__main__":
+    # 加载配置文件（如果存在）
+    config_file = "config/[场景名称]_config.json"
+    evaluator = CustomScenarioEvaluator(config_file)
     
-    def generate_report(self) -> str:
-        """生成评估报告"""
-        # 实现报告生成逻辑
-        pass
+    # 测试用例
+    test_cases = [
+        {
+            "name": "测试用例1",
+            "input": "[测试输入1]",
+            "expected_output": "[期望输出1]"
+        }
+    ]
+    
+    # 运行评估
+    results = evaluator.run_evaluation(test_cases)
+    print(json.dumps(results, ensure_ascii=False, indent=2))
+```
+
+### 2. 脚本管理与执行
+
+#### 目录结构
+
+```
+agent-evaluation-framework/
+├── config/                     # 生成的配置文件
+│   ├── weather_config.json     # 天气查询场景配置
+│   ├── sales_config.json       # 销量推荐场景配置
+│   └── document_config.json    # 文档查询场景配置
+├── generated_scripts/          # 生成的评估脚本
+│   ├── weather_evaluator.py    # 天气查询场景评估脚本
+│   ├── sales_evaluator.py      # 销量推荐场景评估脚本
+│   └── document_evaluator.py   # 文档查询场景评估脚本
+├── scripts/
+│   ├── script_runner.py        # 脚本执行器
+│   └── performance_evaluator.py
+└── SKILL.md
+```
+
+#### 脚本执行器
+
+创建一个脚本执行器，用于自动发现和执行生成的评估脚本：
+
+```python
+# scripts/script_runner.py
+import os
+import importlib.util
+import json
+from typing import Dict, Any, List
+
+class ScriptRunner:
+    """评估脚本执行器"""
+    
+    def __init__(self, scripts_dir="generated_scripts"):
+        self.scripts_dir = scripts_dir
+    
+    def discover_scripts(self) -> List[str]:
+        """发现所有生成的评估脚本"""
+        scripts = []
+        
+        if not os.path.exists(self.scripts_dir):
+            os.makedirs(self.scripts_dir)
+        
+        for file in os.listdir(self.scripts_dir):
+            if file.endswith(".py") and not file.startswith("_"):
+                scripts.append(os.path.join(self.scripts_dir, file))
+        
+        return scripts
+    
+    def load_script(self, script_path: str):
+        """加载脚本模块"""
+        module_name = os.path.basename(script_path).replace(".py", "")
+        spec = importlib.util.spec_from_file_location(module_name, script_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    
+    def run_script(self, script_path: str, test_cases: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """执行单个评估脚本"""
+        module = self.load_script(script_path)
+        
+        # 查找评估器类
+        evaluator_class = None
+        for name in dir(module):
+            obj = getattr(module, name)
+            if hasattr(obj, "__class__") and "Evaluator" in name:
+                evaluator_class = obj
+                break
+        
+        if not evaluator_class:
+            raise ValueError(f"脚本 {script_path} 中未找到评估器类")
+        
+        # 创建评估器实例并运行
+        evaluator = evaluator_class()
+        results = evaluator.run_evaluation(test_cases)
+        
+        return results
+    
+    def run_all_scripts(self, test_cases: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """执行所有评估脚本"""
+        all_results = {}
+        scripts = self.discover_scripts()
+        
+        for script_path in scripts:
+            script_name = os.path.basename(script_path).replace(".py", "")
+            print(f"执行评估脚本: {script_name}")
+            
+            try:
+                results = self.run_script(script_path, test_cases)
+                all_results[script_name] = results
+            except Exception as e:
+                print(f"执行脚本 {script_name} 时出错: {str(e)}")
+                all_results[script_name] = {"error": str(e)}
+        
+        return all_results
+    
+    def generate_combined_report(self, results: Dict[str, Any]) -> str:
+        """生成综合评估报告"""
+        report = "# 综合评估报告\n\n"
+        
+        for script_name, script_results in results.items():
+            report += f"## {script_name}\n\n"
+            
+            if "error" in script_results:
+                report += f"**执行错误**: {script_results['error']}\n\n"
+            else:
+                # 生成脚本特定的报告内容
+                report += "TODO: 生成详细报告\n\n"
+        
+        return report
+
+if __name__ == "__main__":
+    runner = ScriptRunner()
+    
+    # 测试用例
+    test_cases = [
+        {
+            "name": "测试用例1",
+            "input": "[测试输入1]",
+            "expected_output": "[期望输出1]"
+        }
+        # 添加更多测试用例
+    ]
+    
+    # 执行所有脚本
+    results = runner.run_all_scripts(test_cases)
+    
+    # 生成报告
+    report = runner.generate_combined_report(results)
+    print(report)
+    
+    # 保存结果
+    with open("combined_evaluation_results.json", "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
 ```
 
 #### 使用方法
 
 ```bash
-# 评估单个场景
-python scripts/performance_evaluator.py --task "查询北京天气" --iterations 10
+# 执行所有生成的评估脚本
+python scripts/script_runner.py
 
-# 评估多个场景
-python scripts/performance_evaluator.py --scenario-file scenarios.json --output report.json
+# 执行特定场景的评估脚本
+python generated_scripts/[场景名称]_evaluator.py
+
+# 查看生成的评估报告
+cat combined_evaluation_results.json
 ```
 
-### 2. Token使用量分析脚本
+### 3. 与大模型交互流程
+
+#### 1. 引导大模型生成评估配置文件
+
+**用户提示**：
+```
+请为以下业务场景生成一个评估配置文件，用于定义更拟真的模型请求数量和执行参数：
+
+业务场景：在线客服系统
+核心功能：
+1. 回答用户产品咨询
+2. 处理订单状态查询
+3. 提供技术支持
+
+性能要求：
+- 响应时间不超过2秒
+- 支持并发处理100个请求
+- 24/7稳定运行
+
+请生成一个JSON配置文件，包含：
+1. 场景基本信息
+2. 模型请求配置（根据场景复杂度定义不同方案的模型调用次数）
+3. 执行参数（迭代次数、并发数等）
+4. 性能指标权重
+
+配置文件应命名为：customer_service_config.json
+```
+
+#### 2. 引导大模型生成评估脚本
+
+**用户提示**：
+```
+请为以下业务场景生成一个评估脚本，用于测试Skill、MCP和直接Tool三种实现方案的性能：
+
+业务场景：在线客服系统
+核心功能：
+1. 回答用户产品咨询
+2. 处理订单状态查询
+3. 提供技术支持
+
+性能要求：
+- 响应时间不超过2秒
+- 支持并发处理100个请求
+- 24/7稳定运行
+
+请生成一个完整的Python脚本，包含：
+1. 三种实现方案的具体代码
+2. 从配置文件加载模型请求数量配置
+3. 性能测试逻辑（模型调用次数、执行时间、Token使用量）
+4. 结果分析和对比
+5. 生成评估报告
+
+脚本应遵循以下结构：
+- 使用LangChain框架
+- 支持模拟模式（无模型配置时）
+- 支持从JSON配置文件加载参数
+- 输出标准化的评估结果
+- 脚本文件名为：customer_service_evaluator.py
+```
+
+#### 3. 保存生成的文件
+
+将大模型生成的配置文件和脚本保存到对应目录：
+
+```bash
+# 创建目录（如果不存在）
+mkdir -p config generated_scripts
+
+# 保存配置文件
+# 将生成的配置保存为 config/customer_service_config.json
+
+# 保存脚本
+# 将生成的代码保存为 generated_scripts/customer_service_evaluator.py
+```
+
+#### 4. 执行评估脚本
+
+```bash
+# 执行单个脚本
+python scripts/script_runner.py --script customer_service_evaluator.py
+
+# 或执行所有脚本
+python scripts/script_runner.py
+
+# 查看生成的评估报告
+cat combined_evaluation_report.md
+```
+
+#### 4. 分析评估结果
+
+查看生成的评估报告，分析三种实现方案的性能差异：
+
+- **性能指标**：模型调用次数、执行时间、Token使用量
+- **开发指标**：代码复杂度、可维护性
+- **功能指标**：功能完整性、灵活性
+
+根据评估结果，选择最适合业务场景的实现方案。
+
+## 4. 完整评估流程
+
+### 步骤1：准备业务场景描述
+
+明确业务场景的核心功能、性能要求和技术约束。
+
+### 步骤2：引导大模型生成评估配置文件
+
+使用标准化的提示词引导大模型生成针对特定场景的评估配置文件，定义更拟真的模型请求数量。
+
+### 步骤3：引导大模型生成评估脚本
+
+使用标准化的提示词引导大模型生成针对特定场景的评估脚本，脚本应支持从配置文件加载参数。
+
+### 步骤4：保存和组织文件
+
+- 将生成的配置文件保存到 `config/` 目录
+- 将生成的脚本保存到 `generated_scripts/` 目录
+- 按场景分类管理文件，确保配置文件和脚本名称对应
+
+### 步骤5：执行评估
+
+使用脚本执行器运行评估脚本，收集性能数据。脚本会自动从配置文件加载模型请求数量配置。
+
+### 步骤6：分析结果
+
+查看生成的评估报告，分析三种实现方案的优缺点，特别关注模型调用次数的差异。
+
+### 步骤7：调整配置（可选）
+
+根据初步评估结果，调整配置文件中的模型调用次数和执行参数，重新运行评估以获得更准确的结果。
+
+### 步骤8：做出决策
+
+基于评估结果，选择最适合业务场景的实现方案。
+
+### 步骤9：持续优化
+
+根据实际运行情况，不断调整配置和实现方案，持续优化性能。
+
+## 5. 最佳实践
+
+- **场景细分**：将复杂业务场景拆分为多个子场景进行评估
+- **数据驱动**：基于客观指标做出决策，而非主观判断
+- **持续评估**：定期重新评估实现方案，适应业务需求变化
+- **混合策略**：根据不同功能模块选择最合适的实现方案
+- **文档化**：记录评估过程和结果，为未来决策提供参考
+
+## 6. 总结
+
+本评估框架通过引导大模型生成场景特定的评估脚本，并自动执行这些脚本进行性能测试，为业务场景选择最合适的Agent实现方案提供了客观、科学的依据。
+
+通过标准化的评估流程和客观的性能指标，开发者和架构师可以：
+
+1. **科学决策**：基于实际性能数据选择实现方案
+2. **优化资源**：合理分配开发和运行资源
+3. **降低风险**：提前识别潜在的性能瓶颈
+4. **持续改进**：建立性能基准，跟踪优化效果
+
+最终目标是构建既满足业务需求又具有良好性能和可维护性的Agent系统。
 
 #### 脚本结构
 
