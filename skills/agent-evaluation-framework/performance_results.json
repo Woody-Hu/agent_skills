@@ -1,0 +1,82 @@
+{
+  "direct_tool": {
+    "model_calls": 5,
+    "total_time": 3.864769377327425,
+    "average_time": 0.772953875465485,
+    "iterations": 5
+  },
+  "mcp": {
+    "model_calls": 5,
+    "total_time": 2.73204828765081,
+    "average_time": 0.546409657530162,
+    "iterations": 5
+  },
+  "skill": {
+    "model_calls": 5,
+    "total_time": 4.180485448355548,
+    "average_time": 0.8360970896711096,
+    "iterations": 5
+  },
+  "scenarios": {
+    "天气查询": {
+      "direct_tool": {
+        "model_calls": 5,
+        "total_time": 3.2145297210685366,
+        "average_time": 0.6429059442137073,
+        "iterations": 5
+      },
+      "mcp": {
+        "model_calls": 5,
+        "total_time": 3.4794348478998582,
+        "average_time": 0.6958869695799716,
+        "iterations": 5
+      },
+      "skill": {
+        "model_calls": 5,
+        "total_time": 4.286753020462356,
+        "average_time": 0.8573506040924712,
+        "iterations": 5
+      }
+    },
+    "位置感知天气": {
+      "direct_tool": {
+        "model_calls": 5,
+        "total_time": 4.010106062239256,
+        "average_time": 0.8020212124478512,
+        "iterations": 5
+      },
+      "mcp": {
+        "model_calls": 5,
+        "total_time": 3.9013873003153225,
+        "average_time": 0.7802774600630645,
+        "iterations": 5
+      },
+      "skill": {
+        "model_calls": 5,
+        "total_time": 5.242336412801697,
+        "average_time": 1.0484672825603394,
+        "iterations": 5
+      }
+    },
+    "复杂问答": {
+      "direct_tool": {
+        "model_calls": 5,
+        "total_time": 3.864769377327425,
+        "average_time": 0.772953875465485,
+        "iterations": 5
+      },
+      "mcp": {
+        "model_calls": 5,
+        "total_time": 2.73204828765081,
+        "average_time": 0.546409657530162,
+        "iterations": 5
+      },
+      "skill": {
+        "model_calls": 5,
+        "total_time": 4.180485448355548,
+        "average_time": 0.8360970896711096,
+        "iterations": 5
+      }
+    }
+  }
+}
