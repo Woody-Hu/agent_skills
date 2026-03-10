@@ -1,84 +1,84 @@
 ---
 name: research-agent-memory
-description: "科研智能体记忆系统。记录错误、反思和经验，支持动态混合召回。Invoke when agent makes mistakes, receives user feedback, or needs to recall past experiences."
+description: "Research agent memory system. Records errors, reflections, and experiences, supports dynamic hybrid recall. Invoke when agent makes mistakes, receives user feedback, or needs to recall past experiences."
 ---
 
-# 科研智能体记忆系统
+# Research Agent Memory System
 
-本skill为科研智能体提供错误记忆记录和动态召回能力，帮助智能体从错误中学习并持续改进。
+This skill provides error memory recording and dynamic recall capabilities for research agents, helping agents learn from mistakes and continuously improve.
 
-## 触发条件
+## Trigger Conditions
 
-**必须触发场景：**
+**Must-trigger scenarios:**
 
-1. **用户明确要求记录** - 用户提及"记下这个"、"这个做错了"、"记住这个"、"记录下来"等说法
-2. **工具使用错误** - 调用工具时返回错误、参数错误、工具不可用等
-3. **推理错误** - 思路错误、逻辑错误、假设错误、方法选择不当
-4. **工作流程错误** - 执行顺序错误、步骤遗漏、任务理解偏差
-5. **用户反馈** - 用户指出问题、纠正错误、提供反馈
-6. **任务失败** - 任务无法完成、超时、结果不符合预期
-7. **成功执行** - 用户主动引入的成功经验、工具调用成功、推理正确、工作流程顺畅、任务完成
-8. **需要召回历史经验** - 开始新任务前、遇到困难时、用户询问相关问题
+1. **User explicitly requests recording** - User mentions "remember this", "this is wrong", "keep this in mind", "record this" and similar phrases
+2. **Tool usage error** - Tool returns error, parameter error, tool unavailable, etc.
+3. **Reasoning error** - Wrong thinking, logical error, wrong assumption, inappropriate method selection
+4. **Workflow error** - Incorrect execution order, missing steps, task understanding deviation
+5. **User feedback** - User points out problems, corrects errors, provides feedback
+6. **Task failure** - Task cannot be completed, timeout, results not as expected
+7. **Successful execution** - User-initiated success experiences, successful tool calls, correct reasoning, smooth workflow, task completion
+8. **Need to recall historical experience** - Before starting a new task, when encountering difficulties, when user asks related questions
 
-## 记忆数据结构
+## Memory Data Structure
 
-### Markdown 记忆文件格式
+### Markdown Memory File Format
 
-每个记忆以单独的Markdown文件存储，文件名格式：`{timestamp}-{memory_id}.md`
+Each memory is stored as a separate Markdown file with filename format: `{timestamp}-{memory_id}.md`
 
 ```markdown
 ---
 memory_id: "uuid"
-timestamp: "ISO8601时间戳"
-type: "记忆类型"
-tags: ["标签1", "标签2"]
-keywords: ["关键词1", "关键词2"]
+timestamp: "ISO8601 timestamp"
+type: "memory type"
+tags: ["tag1", "tag2"]
+keywords: ["keyword1", "keyword2"]
 version: "1.0"
 ---
 
-# 记忆记录
+# Memory Record
 
-## 上下文
+## Context
 
-[完整上下文描述]
+[Complete context description]
 
-## 快照
+## Snapshot
 
-### 错误信息（错误记忆）
-- 错误类型: [错误类型]
-- 错误消息: [错误消息]
-- 工具调用: [工具调用记录]
-- 推理链: [推理链]
+### Error Information (Error Memory)
+- Error Type: [Error Type]
+- Error Message: [Error Message]
+- Tool Calls: [Tool Call Records]
+- Reasoning Chain: [Reasoning Chain]
 
-### 成功信息（成功记忆）
-- 成功类型: [成功类型]
-- 结果: [成功结果]
-- 工具调用: [工具调用记录]
-- 推理链: [推理链]
+### Success Information (Success Memory)
+- Success Type: [Success Type]
+- Result: [Success Result]
+- Tool Calls: [Tool Call Records]
+- Reasoning Chain: [Reasoning Chain]
 
-## 反思
+## Reflection
 
-### 错误反思
-- 根本原因: [根本原因分析]
-- 错误描述: [错误描述]
-- 正确做法: [正确做法]
-- 关键教训: [关键教训]
-- 预防策略: [预防策略]
+### Error Reflection
+- Root Cause: [Root Cause Analysis]
+- Error Description: [Error Description]
+- Correct Approach: [Correct Approach]
+- Key Lesson: [Key Lesson]
+- Prevention Strategy: [Prevention Strategy]
 
-### 成功反思
-- 成功因素: [成功因素]
-- 最佳实践: [最佳实践]
-- 关键经验: [关键经验]
-- 推广策略: [推广策略]
+### Success Reflection
+- Success Factors: [Success Factors]
+- Best Practice: [Best Practice]
+- Key Experience: [Key Experience]
+- Promotion Strategy: [Promotion Strategy]
 
-## 元数据
+## Metadata
 
-- 纠正状态: [是否已纠正]
-- 纠正措施: [应用的纠正措施]
-- 对话轮次: [对话轮次]
+- Correction Status: [Whether Corrected]
+- Correction Applied: [Applied Correction Measures]
+- Conversation Turn: [Conversation Turn]
 ```
 
-### 示例记忆文件
+### Example Memory File
 
 ```markdown
 ---
@@ -90,385 +90,385 @@ keywords: ["pandas", "memory_error", "read_csv", "chunksize"]
 version: "1.0"
 ---
 
-# 记忆记录
+# Memory Record
 
-## 上下文
+## Context
 
-任务：分析100万条科研数据，使用pandas进行数据清洗。当前步骤：读取CSV文件并转换为DataFrame。
+Task: Analyze 1 million research data records, using pandas for data cleaning. Current step: Read CSV file and convert to DataFrame.
 
-## 快照
+## Snapshot
 
-### 错误信息
-- 错误类型: MemoryError
-- 错误消息: Unable to allocate 2.5 GiB for an array with shape (1000000, 250)
-- 工具调用: pd.read_csv('large_data.csv')
-- 推理链: 需要读取CSV文件 → 使用pandas → 直接读取全部数据
+### Error Information
+- Error Type: MemoryError
+- Error Message: Unable to allocate 2.5 GiB for an array with shape (1000000, 250)
+- Tool Calls: pd.read_csv('large_data.csv')
+- Reasoning Chain: Need to read CSV file → Use pandas → Read all data directly
 
-## 反思
+## Reflection
 
-### 错误反思
-- 根本原因: 尝试一次性加载超过可用内存的大数据集到内存中
-- 错误描述: 直接使用pd.read_csv('large_data.csv')尝试将整个大文件加载到内存，未考虑文件大小和内存限制
-- 正确做法: 在读取大文件前应先检查文件大小，使用chunksize参数分块读取，或仅加载需要的列，使用dtype优化内存
-- 关键教训: 处理大数据集时必须考虑内存限制，不能一次性加载全部数据
-- 预防策略: 建立大文件处理检查机制：1)读取前检查文件大小 2)设置chunksize参数 3)仅加载必要列 4)使用合适的dtype减少内存占用
+### Error Reflection
+- Root Cause: Attempted to load a large dataset exceeding available memory into memory at once
+- Error Description: Directly used pd.read_csv('large_data.csv') to load the entire large file into memory without considering file size and memory limitations
+- Correct Approach: Before reading large files, check file size, use chunksize parameter for chunked reading, or only load needed columns, use dtype to optimize memory
+- Key Lesson: When processing large datasets, memory limitations must be considered; cannot load all data at once
+- Prevention Strategy: Establish large file processing check mechanism: 1) Check file size before reading 2) Set chunksize parameter 3) Only load necessary columns 4) Use appropriate dtype to reduce memory usage
 
-## 元数据
+## Metadata
 
-- 纠正状态: true
-- 纠正措施: 使用chunksize=10000分块读取
-- 对话轮次: 15
+- Correction Status: true
+- Correction Applied: Use chunksize=10000 for chunked reading
+- Conversation Turn: 15
 ```
 
-## 标签系统规范
+## Tag System Specification
 
-### 标签格式与分类
+### Tag Format and Classification
 
-**动态标签生成规则：**
-
-```
-error:<错误类型>          # 根据实际错误动态生成
-  示例: error:tool_error, error:reasoning_error, error:workflow_error
-
-success:<成功类型>        # 根据实际成功场景动态生成
-  示例: success:user_experience, success:tool_success, success:task_completed
-
-tool:<工具名称>           # 根据使用的工具动态生成
-  示例: tool:python_interpreter, tool:web_search, tool:file_read
-
-domain:<应用领域>         # 根据任务领域动态生成
-  示例: domain:research, domain:analysis, domain:writing, domain:coding
-
-stage:<任务阶段>          # 根据任务阶段动态生成
-  示例: stage:planning, stage:execution, stage:verification, stage:debugging
-```
-
-### 标签生成规则
-
-1. 每个记忆**至少包含**一个类型标签（`error:` 或 `success:`）
-2. 根据使用的工具添加 `tool:` 标签
-3. 根据任务内容添加 `domain:` 标签
-4. 根据当前任务阶段添加 `stage:` 标签
-
-## 关键词提取规范
-
-### 关键词来源
-
-1. **错误消息中的关键术语** - 错误类型、库名、函数名
-2. **工具名称** - Python库、API服务、工具名
-3. **领域术语** - 科研领域特定词汇
-4. **参数和值** - 重要的配置参数
-5. **解决方案关键词** - 正确的工具、方法名
-
-### 关键词选择原则
-
-- 选择**具有区分度**的词汇
-- 优先选择**名词和动词**
-- 包含**工具名**和**错误类型**
-- 数量控制在 **3-8个** 关键词
-- 使用**精确匹配**形式
-
-## 反思生成模板
-
-### 错误记忆反思
-
-当需要记录错误记忆时，必须按照以下结构进行反思：
-
-#### 分析阶段
-
-1. **发生了什么**：详细描述错误或问题的具体情况
-2. **为什么发生**：深入分析根本原因，不要停留在表面
-3. **影响范围**：评估错误对当前任务和后续任务的影响
-
-#### 反思阶段
-
-1. **错误类型判断**：
-   - 工具使用错误？推理过程错误？工作流程错误？其他？
-
-2. **根本原因**（至少50字）：
-   - 为什么会犯这个错误？
-   - 当时的假设是什么？这些假设有什么问题？
-
-3. **关键教训**（至少30字）：
-   - 这个错误教会了我什么？
-   - 今后遇到类似情况应该注意什么？
-
-4. **预防策略**（至少30字）：
-   - 如何避免再犯同样的错误？
-   - 需要建立什么检查机制？
-
-### 成功记忆反思
-
-当需要记录成功记忆时，必须按照以下结构进行反思：
-
-#### 分析阶段
-
-1. **发生了什么**：详细描述成功的具体情况，特别是用户主动引入的经验
-2. **为什么成功**：分析成功的关键因素，包括用户提供的宝贵经验
-3. **影响范围**：评估成功对当前任务和后续任务的积极影响
-
-#### 反思阶段
-
-1. **成功类型判断**：
-   - 用户主动引入的成功经验？工具使用成功？推理正确？工作流程顺畅？任务完成？
-
-2. **成功因素**（至少50字）：
-   - 哪些因素导致了成功？特别强调用户主动引入的经验
-   - 当时的决策和方法有什么优势？
-
-3. **最佳实践**（至少50字）：
-   - 这个成功案例的最佳实践是什么？
-   - 如何将用户提供的经验应用到其他类似场景？
-
-4. **关键经验**（至少30字）：
-   - 这个成功经验教会了我什么？特别是用户提供的宝贵经验
-   - 今后遇到类似情况应该如何处理？
-
-5. **推广策略**（至少30字）：
-   - 如何将此成功经验（包括用户引入的经验）推广到其他任务？
-   - 需要建立什么标准化流程？
-
-### 示例
-
-#### 错误记忆示例
-
-**错误场景**：使用pandas读取大文件时内存溢出
-
-**反思生成**：
+**Dynamic tag generation rules:**
 
 ```
-root_cause: 尝试一次性加载超过可用内存的大数据集到内存中。使用pd.read_csv()直接读取100万行×250列的CSV文件，导致内存溢出。
+error:<error type>          # Generated dynamically based on actual error
+  Examples: error:tool_error, error:reasoning_error, error:workflow_error
 
-what_went_wrong: 直接使用pd.read_csv('large_data.csv')尝试将整个大文件加载到内存，未考虑文件大小和内存限制。
+success:<success type>        # Generated dynamically based on actual success scenario
+  Examples: success:user_experience, success:tool_success, success:task_completed
 
-what_should_happen: 在读取大文件前应先检查文件大小，使用chunksize参数分块读取，或仅加载需要的列，使用dtype优化内存。
+tool:<tool name>           # Generated dynamically based on used tool
+  Examples: tool:python_interpreter, tool:web_search, tool:file_read
 
-lesson_learned: 处理大数据集时必须考虑内存限制，不能一次性加载全部数据。需要使用pandas的chunksize参数或dtype参数进行优化。
+domain:<application domain>         # Generated dynamically based on task domain
+  Examples: domain:research, domain:analysis, domain:writing, domain:coding
 
-prevention_strategy: 建立大文件处理检查机制：1)读取前检查文件大小 2)设置chunksize参数 3)仅加载必要列 4)使用合适的dtype减少内存占用。
+stage:<task stage>          # Generated dynamically based on task stage
+  Examples: stage:planning, stage:execution, stage:verification, stage:debugging
 ```
 
-#### 成功记忆示例
+### Tag Generation Rules
 
-**成功场景**：用户主动引入经验 - 使用pandas分块读取大文件并成功分析
+1. Each memory **must contain** at least one type tag (`error:` or `success:`)
+2. Add `tool:` tag based on the used tool
+3. Add `domain:` tag based on task content
+4. Add `stage:` tag based on current task stage
 
-**反思生成**：
+## Keyword Extraction Specification
+
+### Keyword Sources
+
+1. **Key terms from error messages** - Error types, library names, function names
+2. **Tool names** - Python libraries, API services, tool names
+3. **Domain terms** - Research domain-specific vocabulary
+4. **Parameters and values** - Important configuration parameters
+5. **Solution keywords** - Correct tools, method names
+
+### Keyword Selection Principles
+
+- Choose **discriminative** vocabulary
+- Prioritize **nouns and verbs**
+- Include **tool names** and **error types**
+- Control number to **3-8 keywords**
+- Use **exact match** form
+
+## Reflection Generation Template
+
+### Error Memory Reflection
+
+When recording error memories, reflection must follow this structure:
+
+#### Analysis Phase
+
+1. **What happened**: Detailed description of the specific error or problem
+2. **Why it happened**: In-depth analysis of root causes, not just surface-level
+3. **Impact scope**: Assess the impact of the error on current and subsequent tasks
+
+#### Reflection Phase
+
+1. **Error type judgment**:
+   - Tool usage error? Reasoning process error? Workflow error? Other?
+
+2. **Root cause** (at least 50 characters):
+   - Why did this error occur?
+   - What were the assumptions at the time? What was wrong with these assumptions?
+
+3. **Key lesson** (at least 30 characters):
+   - What did this error teach me?
+   - What should I pay attention to in similar situations in the future?
+
+4. **Prevention strategy** (at least 30 characters):
+   - How to avoid making the same mistake again?
+   - What checking mechanisms need to be established?
+
+### Success Memory Reflection
+
+When recording success memories, reflection must follow this structure:
+
+#### Analysis Phase
+
+1. **What happened**: Detailed description of the specific success, especially user-initiated experiences
+2. **Why it succeeded**: Analysis of key success factors, including valuable user-provided experiences
+3. **Impact scope**: Assess the positive impact of success on current and subsequent tasks
+
+#### Reflection Phase
+
+1. **Success type judgment**:
+   - User-initiated success experience? Successful tool usage? Correct reasoning? Smooth workflow? Task completion?
+
+2. **Success factors** (at least 50 characters):
+   - What factors led to success? Especially emphasize user-initiated experiences
+   - What were the advantages of the decisions and methods at that time?
+
+3. **Best practice** (at least 50 characters):
+   - What are the best practices from this success case?
+   - How to apply user-provided experiences to other similar scenarios?
+
+4. **Key experience** (at least 30 characters):
+   - What did this success experience teach me? Especially valuable user-provided experiences
+   - How to handle similar situations in the future?
+
+5. **Promotion strategy** (at least 30 characters):
+   - How to promote this success experience (including user-initiated experiences) to other tasks?
+   - What standardized processes need to be established?
+
+### Examples
+
+#### Error Memory Example
+
+**Error scenario**: Memory overflow when reading large files with pandas
+
+**Reflection generation**:
 
 ```
-success_factors: 用户主动引入了分块处理大文件的经验，使用chunksize=10000分块读取大文件，仅加载需要的列，使用合适的dtype减少内存占用，成功完成数据分析。
+root_cause: Attempted to load a large dataset exceeding available memory into memory at once. Used pd.read_csv() to directly read a CSV file with 1 million rows × 250 columns, causing memory overflow.
 
-best_practice: 处理大文件时应：1)先检查文件大小 2)设置合理的chunksize 3)仅加载必要列 4)使用dtype优化 5)在分块中进行处理。这些都是用户提供的宝贵经验。
+what_went_wrong: Directly used pd.read_csv('large_data.csv') to load the entire large file into memory without considering file size and memory limitations.
 
-key_experience: 分块处理是处理大文件的有效方法，既可以避免内存溢出，又可以保持处理效率。用户的经验分享帮助我们快速解决了问题。
+what_should_happen: Before reading large files, check file size, use chunksize parameter for chunked reading, or only load needed columns, use dtype to optimize memory.
 
-promotion_strategy: 建立大文件处理的标准化流程，将用户提供的经验整理成最佳实践文档，在团队中推广分块处理的方法。
+lesson_learned: When processing large datasets, memory limitations must be considered; cannot load all data at once. Need to use pandas' chunksize parameter or dtype parameter for optimization.
+
+prevention_strategy: Establish large file processing check mechanism: 1) Check file size before reading 2) Set chunksize parameter 3) Only load necessary columns 4) Use appropriate dtype to reduce memory usage.
 ```
 
-## 混合召回策略
+#### Success Memory Example
 
-### 召回触发时机
+**Success scenario**: User-initiated experience - Using pandas chunked reading to successfully analyze large files
 
-1. **任务开始前**
-   - 检索相似任务的成功经验和失败经验
-   - 触发条件：用户发起新任务
+**Reflection generation**:
 
-2. **工具调用前**
-   - 检索该工具的成功经验和失败经验
-   - 触发条件：准备使用某个工具
+```
+success_factors: User actively introduced chunked processing experience for large files, using chunksize=10000 to read large files in chunks, only loading necessary columns, using appropriate dtype to reduce memory usage, successfully completing data analysis.
 
-3. **遇到错误时**
-   - 基于错误消息检索解决方案
-   - 触发条件：工具返回错误
+best_practice: When processing large files: 1) Check file size first 2) Set reasonable chunksize 3) Only load necessary columns 4) Use dtype optimization 5) Process in chunks. These are all valuable experiences provided by the user.
 
-4. **成功完成任务后**
-   - 记录成功经验并检索相关成功案例
-   - 触发条件：任务成功完成
+key_experience: Chunked processing is an effective method for handling large files, which can avoid memory overflow while maintaining processing efficiency. User's experience sharing helped us quickly solve the problem.
 
-5. **用户反馈后**
-   - 检索相关历史记忆
-   - 触发条件：用户给出反馈
+promotion_strategy: Establish standardized processes for large file processing, organize user-provided experiences into best practice documents, and promote chunked processing methods within the team.
+```
 
-### 召回方法
+## Hybrid Recall Strategy
 
-**并行执行以下召回：**
+### Recall Trigger Timing
 
-1. **标签匹配**（权重25%）
-   - 根据tags进行精确或模糊匹配
+1. **Before task start**
+   - Retrieve successful and failed experiences of similar tasks
+   - Trigger condition: User initiates a new task
 
-2. **关键词匹配**（权重20%）
-   - 根据keywords进行精确匹配
+2. **Before tool call**
+   - Retrieve successful and failed experiences of the tool
+   - Trigger condition: Preparing to use a tool
 
-3. **BM25语义召回**（权重35%）
-   - 对context_string和reflection字段进行BM25评分
+3. **When encountering errors**
+   - Retrieve solutions based on error messages
+   - Trigger condition: Tool returns error
 
-4. **向量相似度**（权重20%）
-   - 对embedding_vector进行余弦相似度计算
+4. **After successful task completion**
+   - Record success experience and retrieve related success cases
+   - Trigger condition: Task successfully completed
 
-### 融合排序
+5. **After user feedback**
+   - Retrieve related historical memories
+   - Trigger condition: User provides feedback
 
-使用 **RRF (Reciprocal Rank Fusion)** 算法进行加权融合：
+### Recall Methods
+
+**Execute the following recalls in parallel:**
+
+1. **Tag matching** (weight 25%)
+   - Exact or fuzzy matching based on tags
+
+2. **Keyword matching** (weight 20%)
+   - Exact matching based on keywords
+
+3. **BM25 semantic recall** (weight 35%)
+   - BM25 scoring on context_string and reflection fields
+
+4. **Vector similarity** (weight 20%)
+   - Cosine similarity calculation on embedding_vector
+
+### Fusion Ranking
+
+Use **RRF (Reciprocal Rank Fusion)** algorithm for weighted fusion:
 
 ```
 score(doc) = Σ (weight_i / (rank_i(doc) + k)) * weight_factor
 ```
 
-其中 k=60，weight_factor 根据召回方法调整。
+Where k=60, weight_factor is adjusted based on recall method.
 
-### 召回结果处理
+### Recall Result Processing
 
-1. 筛选相似度阈值 > 0.5 的记忆
-2. 按相关度排序返回 Top-K
-3. 如果没有匹配记忆，返回空列表
+1. Filter memories with similarity threshold > 0.5
+2. Return Top-K sorted by relevance
+3. Return empty list if no matching memories
 
-## 存储结构
+## Storage Structure
 
 ```
 research-agent-memory/
 ├── memory_store/
-│   ├── memories/                # 记忆文件存储目录
-│   │   ├── 2026/                # 按年份组织
-│   │   │   ├── 03/              # 按月组织
-│   │   │   │   ├── 2026-03-09-550e8400.md  # 记忆文件
+│   ├── memories/                # Memory file storage directory
+│   │   ├── 2026/                # Organized by year
+│   │   │   ├── 03/              # Organized by month
+│   │   │   │   ├── 2026-03-09-550e8400.md  # Memory file
 │   │   │   │   └── ...
 │   └── index/
-│       ├── bm25_index.pkl       # BM25索引
-│       ├── tag_index.json       # 标签倒排索引
-│       └── vector_index.faiss   # 向量索引
+│       ├── bm25_index.pkl       # BM25 index
+│       ├── tag_index.json       # Tag inverted index
+│       └── vector_index.faiss   # Vector index
 ├── scripts/
 │   ├── __init__.py
-│   ├── memory_system.py         # 核心记忆系统
-│   ├── embedding.py             # 向量化模块
-│   ├── recall.py                # 召回引擎
-│   └── cli.py                   # 命令行接口
+│   ├── memory_system.py         # Core memory system
+│   ├── embedding.py             # Embedding module
+│   ├── recall.py                # Recall engine
+│   └── cli.py                   # Command line interface
 ├── SKILL.md
 └── README.md
 ```
 
-## 使用方式
+## Usage
 
-### 记录记忆
+### Record Memory
 
-使用 `cli.py record` 命令记录新的记忆：
+Use `cli.py record` command to record new memories:
 
 ```bash
 python scripts/cli.py record \
-    --type <记忆类型> \
-    --tags "<标签列表>" \
-    --keywords "<关键词列表>" \
-    --context "<上下文描述>" \
-    --reflection-file <反思文件路径> \
-    --snapshot-file <快照文件路径>
+    --type <memory type> \
+    --tags "<tag list>" \
+    --keywords "<keyword list>" \
+    --context "<context description>" \
+    --reflection-file <reflection file path> \
+    --snapshot-file <snapshot file path>
 ```
 
-**参数说明：**
-- `--type` (必需): 记忆类型，如 `tool_error`, `success`, `reasoning_error` 等
-- `--tags`: 逗号分隔的标签列表，如 `"error:tool_error,tool:python_interpreter,domain:data_processing"`
-- `--keywords`: 逗号分隔的关键词列表，如 `"pandas,memory_error,read_csv"`
-- `--context`: 上下文描述字符串
-- `--reflection-file`: 反思内容JSON文件路径
-- `--snapshot-file`: 错误/成功快照JSON文件路径
-- `--storage`: (可选) 存储目录路径，默认为 `./memory_store`
+**Parameter description:**
+- `--type` (required): Memory type, such as `tool_error`, `success`, `reasoning_error`, etc.
+- `--tags`: Comma-separated tag list, e.g., `"error:tool_error,tool:python_interpreter,domain:data_processing"`
+- `--keywords`: Comma-separated keyword list, e.g., `"pandas,memory_error,read_csv"`
+- `--context`: Context description string
+- `--reflection-file`: Path to reflection JSON file
+- `--snapshot-file`: Path to error/success snapshot JSON file
+- `--storage`: (optional) Storage directory path, default is `./memory_store`
 
-**示例：**
+**Example:**
 ```bash
 python scripts/cli.py record \
     --type tool_error \
     --tags "error:tool_error,tool:python_interpreter,domain:data_processing" \
     --keywords "pandas,memory_error,read_csv,chunksize" \
-    --context "任务：分析100万条科研数据，使用pandas进行数据清洗" \
+    --context "Task: Analyze 1 million research data records, using pandas for data cleaning" \
     --reflection-file ./reflection.json
 ```
 
-### 召回记忆
+### Recall Memory
 
-使用 `cli.py recall` 命令召回相关记忆：
+Use `cli.py recall` command to recall related memories:
 
 ```bash
 python scripts/cli.py recall \
-    --query "<查询字符串>" \
-    --tags "<标签过滤>" \
-    --keywords "<关键词过滤>" \
-    --top-k <返回数量> \
-    --threshold <相似度阈值>
+    --query "<query string>" \
+    --tags "<tag filter>" \
+    --keywords "<keyword filter>" \
+    --top-k <return count> \
+    --threshold <similarity threshold>
 ```
 
-**参数说明：**
-- `--query` (必需): 查询字符串，用于混合检索
-- `--tags`: 逗号分隔的标签过滤条件，如 `"tool:python_interpreter,domain:data_processing"`
-- `--keywords`: 逗号分隔的关键词过滤条件
-- `--top-k`: 返回的记忆数量，默认为 5
-- `--threshold`: 相似度阈值，默认为 0.3
-- `--storage`: (可选) 存储目录路径，默认为 `./memory_store`
+**Parameter description:**
+- `--query` (required): Query string for hybrid search
+- `--tags`: Comma-separated tag filter conditions, e.g., `"tool:python_interpreter,domain:data_processing"`
+- `--keywords`: Comma-separated keyword filter conditions
+- `--top-k`: Number of memories to return, default is 5
+- `--threshold`: Similarity threshold, default is 0.3
+- `--storage`: (optional) Storage directory path, default is `./memory_store`
 
-**示例：**
+**Example:**
 ```bash
 python scripts/cli.py recall \
-    --query "pandas读取大文件内存溢出" \
+    --query "pandas memory overflow when reading large files" \
     --tags "tool:python_interpreter" \
     --top-k 3
 ```
 
-### 上下文增强
+### Context Augmentation
 
-使用 `cli.py augment` 命令增强提示词：
+Use `cli.py augment` command to augment prompts:
 
 ```bash
 python scripts/cli.py augment \
-    --task "<任务描述>" \
-    --prompt-file <提示词文件路径> \
-    --output <输出文件路径> \
-    --top-k <记忆数量> \
-    --threshold <相似度阈值>
+    --task "<task description>" \
+    --prompt-file <prompt file path> \
+    --output <output file path> \
+    --top-k <memory count> \
+    --threshold <similarity threshold>
 ```
 
-**参数说明：**
-- `--task` (必需): 任务描述
-- `--prompt-file` (必需): 当前提示词文件路径
-- `--output`: (可选) 输出文件路径，不指定则输出到控制台
-- `--top-k`: 引用的记忆数量，默认为 3
-- `--threshold`: 相似度阈值，默认为 0.5
-- `--storage`: (可选) 存储目录路径，默认为 `./memory_store`
+**Parameter description:**
+- `--task` (required): Task description
+- `--prompt-file` (required): Current prompt file path
+- `--output`: (optional) Output file path, if not specified, output to console
+- `--top-k`: Number of memories to reference, default is 3
+- `--threshold`: Similarity threshold, default is 0.5
+- `--storage`: (optional) Storage directory path, default is `./memory_store`
 
-**示例：**
+**Example:**
 ```bash
 python scripts/cli.py augment \
-    --task "分析科研数据集" \
+    --task "Analyze research dataset" \
     --prompt-file ./current_prompt.txt \
     --output ./augmented_prompt.txt
 ```
 
-### 查看统计信息
+### View Statistics
 
-使用 `cli.py stats` 命令查看记忆系统统计：
+Use `cli.py stats` command to view memory system statistics:
 
 ```bash
-python scripts/cli.py stats [--storage <存储路径>]
+python scripts/cli.py stats [--storage <storage path>]
 ```
 
-### 列出记忆
+### List Memories
 
-使用 `cli.py list` 命令列出所有记忆：
+Use `cli.py list` command to list all memories:
 
 ```bash
 python scripts/cli.py list \
-    --limit <数量> \
-    --offset <偏移量> \
-    [--storage <存储路径>]
+    --limit <count> \
+    --offset <offset> \
+    [--storage <storage path>]
 ```
 
-**参数说明：**
-- `--limit`: 列出的记忆数量，默认为 100
-- `--offset`: 偏移量，默认为 0
+**Parameter description:**
+- `--limit`: Number of memories to list, default is 100
+- `--offset`: Offset, default is 0
 
 ### Python API
 
 ```python
 from scripts.memory_system import ResearchAgentMemory
 
-# 初始化
+# Initialize
 memory_system = ResearchAgentMemory("./memory_store")
 
-# 记录错误记忆
+# Record error memory
 memory_id = memory_system.record({
     "type": "tool_error",
     "tags": [
@@ -483,7 +483,7 @@ memory_id = memory_system.record({
         "memory_error",
         "chunksize"
     ],
-    "context_string": "任务：分析100万条科研数据...",
+    "context_string": "Task: Analyze 1 million research data records...",
     "error_snapshot": {...},
     "reflection": {
         "root_cause": "...",
@@ -494,30 +494,30 @@ memory_id = memory_system.record({
     },
     "metadata": {
         "success_after_correction": True,
-        "correction_applied": "使用chunksize=10000分块读取",
+        "correction_applied": "Use chunksize=10000 for chunked reading",
         "conversation_turn": 15
     }
 })
 
-# 动态召回
+# Dynamic recall
 related_memories = memory_system.recall(
-    query="分析科研数据集并进行可视化",
+    query="Analyze research dataset and visualize",
     tags=["domain:data_processing", "stage:planning"],
     top_k=3
 )
 
-# 上下文增强
+# Context augmentation
 augmented_prompt = memory_system.augment_context(
-    task_description="分析科研数据集",
-    current_prompt="请分析以下数据..."
+    task_description="Analyze research dataset",
+    current_prompt="Please analyze the following data..."
 )
 ```
 
-## 注意事项
+## Notes
 
-1. **反思质量**：反思内容必须详细、具体，避免空泛的总结
-2. **标签准确性**：确保标签准确反映记忆内容，便于后续召回
-3. **关键词选择**：选择具有区分度的关键词，避免过于宽泛
-4. **及时记录**：错误发生后尽快记录，确保上下文完整
-5. **持续优化**：定期回顾记忆，分析错误模式，改进预防策略
-6. **隐私保护**：如涉及敏感信息，进行适当脱敏处理
+1. **Reflection quality**: Reflection content must be detailed and specific, avoiding vague summaries
+2. **Tag accuracy**: Ensure tags accurately reflect memory content for easier subsequent recall
+3. **Keyword selection**: Choose discriminative keywords, avoiding overly broad terms
+4. **Timely recording**: Record errors as soon as they occur to ensure complete context
+5. **Continuous optimization**: Regularly review memories, analyze error patterns, and improve prevention strategies
+6. **Privacy protection**: If sensitive information is involved, perform appropriate desensitization
