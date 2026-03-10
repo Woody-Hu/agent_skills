@@ -11,123 +11,142 @@ description: "科研智能体记忆系统。记录错误、反思和经验，支
 
 **必须触发场景：**
 
-1. **工具使用错误** - 调用工具时返回错误、参数错误、工具不可用等
-2. **推理错误** - 思路错误、逻辑错误、假设错误、方法选择不当
-3. **工作流程错误** - 执行顺序错误、步骤遗漏、任务理解偏差
-4. **用户反馈** - 用户指出问题、纠正错误、提供反馈
-5. **任务失败** - 任务无法完成、超时、结果不符合预期
-6. **成功执行** - 用户主动引入的成功经验、工具调用成功、推理正确、工作流程顺畅、任务完成
-7. **需要召回历史经验** - 开始新任务前、遇到困难时、用户询问相关问题
+1. **用户明确要求记录** - 用户提及"记下这个"、"这个做错了"、"记住这个"、"记录下来"等说法
+2. **工具使用错误** - 调用工具时返回错误、参数错误、工具不可用等
+3. **推理错误** - 思路错误、逻辑错误、假设错误、方法选择不当
+4. **工作流程错误** - 执行顺序错误、步骤遗漏、任务理解偏差
+5. **用户反馈** - 用户指出问题、纠正错误、提供反馈
+6. **任务失败** - 任务无法完成、超时、结果不符合预期
+7. **成功执行** - 用户主动引入的成功经验、工具调用成功、推理正确、工作流程顺畅、任务完成
+8. **需要召回历史经验** - 开始新任务前、遇到困难时、用户询问相关问题
 
 ## 记忆数据结构
 
-### JSON Schema
+### Markdown 记忆文件格式
 
-```json
-{
-  "memory_id": "uuid",
-  "timestamp": "ISO8601时间戳",
-  "version": "1.0",
+每个记忆以单独的Markdown文件存储，文件名格式：`{timestamp}-{memory_id}.md`
 
-  "type": "动态类型字符串",
+```markdown
+---
+memory_id: "uuid"
+timestamp: "ISO8601时间戳"
+type: "记忆类型"
+tags: ["标签1", "标签2"]
+keywords: ["关键词1", "关键词2"]
+version: "1.0"
+---
 
-  "tags": ["标签列表"],
+# 记忆记录
 
-  "keywords": ["关键词列表"],
+## 上下文
 
-  "context_string": "完整上下文描述",
+[完整上下文描述]
 
-  "error_snapshot": {
-    "error_type": "错误类型",
-    "error_message": "错误消息",
-    "stack_trace": "堆栈跟踪（可选）",
-    "tool_calls": ["工具调用记录"],
-    "reasoning_chain": ["推理链"]
-  },
-  
-  "success_snapshot": {
-    "success_type": "成功类型",
-    "result": "成功结果",
-    "duration": "执行时间（可选）",
-    "tool_calls": ["工具调用记录"],
-    "reasoning_chain": ["推理链"]
-  },
-  
-  "reflection": {
-    "root_cause": "根本原因分析",
-    "what_went_wrong": "错误描述",
-    "what_should_happen": "正确做法",
-    "lesson_learned": "关键教训",
-    "prevention_strategy": "预防策略",
-    "success_factors": "成功因素",
-    "best_practice": "最佳实践"
-  },
+## 快照
 
-  "metadata": {
-    "success_after_correction": "是否已纠正",
-    "correction_applied": "应用的纠正措施",
-    "conversation_turn": "对话轮次"
-  },
+### 错误信息（错误记忆）
+- 错误类型: [错误类型]
+- 错误消息: [错误消息]
+- 工具调用: [工具调用记录]
+- 推理链: [推理链]
 
-  "embedding_vector": ["向量表示（可选）"]
-}
+### 成功信息（成功记忆）
+- 成功类型: [成功类型]
+- 结果: [成功结果]
+- 工具调用: [工具调用记录]
+- 推理链: [推理链]
+
+## 反思
+
+### 错误反思
+- 根本原因: [根本原因分析]
+- 错误描述: [错误描述]
+- 正确做法: [正确做法]
+- 关键教训: [关键教训]
+- 预防策略: [预防策略]
+
+### 成功反思
+- 成功因素: [成功因素]
+- 最佳实践: [最佳实践]
+- 关键经验: [关键经验]
+- 推广策略: [推广策略]
+
+## 元数据
+
+- 纠正状态: [是否已纠正]
+- 纠正措施: [应用的纠正措施]
+- 对话轮次: [对话轮次]
+```
+
+### 示例记忆文件
+
+```markdown
+---
+memory_id: "550e8400-e29b-41d4-a716-446655440000"
+timestamp: "2026-03-09T10:00:00Z"
+type: "tool_error"
+tags: ["error:tool_error", "tool:python_interpreter", "domain:data_processing"]
+keywords: ["pandas", "memory_error", "read_csv", "chunksize"]
+version: "1.0"
+---
+
+# 记忆记录
+
+## 上下文
+
+任务：分析100万条科研数据，使用pandas进行数据清洗。当前步骤：读取CSV文件并转换为DataFrame。
+
+## 快照
+
+### 错误信息
+- 错误类型: MemoryError
+- 错误消息: Unable to allocate 2.5 GiB for an array with shape (1000000, 250)
+- 工具调用: pd.read_csv('large_data.csv')
+- 推理链: 需要读取CSV文件 → 使用pandas → 直接读取全部数据
+
+## 反思
+
+### 错误反思
+- 根本原因: 尝试一次性加载超过可用内存的大数据集到内存中
+- 错误描述: 直接使用pd.read_csv('large_data.csv')尝试将整个大文件加载到内存，未考虑文件大小和内存限制
+- 正确做法: 在读取大文件前应先检查文件大小，使用chunksize参数分块读取，或仅加载需要的列，使用dtype优化内存
+- 关键教训: 处理大数据集时必须考虑内存限制，不能一次性加载全部数据
+- 预防策略: 建立大文件处理检查机制：1)读取前检查文件大小 2)设置chunksize参数 3)仅加载必要列 4)使用合适的dtype减少内存占用
+
+## 元数据
+
+- 纠正状态: true
+- 纠正措施: 使用chunksize=10000分块读取
+- 对话轮次: 15
 ```
 
 ## 标签系统规范
 
 ### 标签格式与分类
 
-**必须包含的标签类型：**
+**动态标签生成规则：**
 
 ```
-error:<错误类型>
-  - error:tool_error        工具使用错误
-  - error:reasoning_error   推理错误
-  - error:workflow_error    工作流程错误
-  - error:api_error         API调用错误
-  - error:data_error        数据处理错误
-  - error:user_feedback    用户反馈
+error:<错误类型>          # 根据实际错误动态生成
+  示例: error:tool_error, error:reasoning_error, error:workflow_error
 
-success:<成功类型>
-  - success:user_experience  用户主动引入的成功经验
-  - success:tool_success    工具使用成功
-  - success:reasoning_success 推理正确
-  - success:workflow_success 工作流程顺畅
-  - success:task_completed  任务完成
-  - success:best_practice   最佳实践
+success:<成功类型>        # 根据实际成功场景动态生成
+  示例: success:user_experience, success:tool_success, success:task_completed
 
-tool:<工具名称>
-  - tool:python_interpreter
-  - tool:web_search
-  - tool:file_read
-  - tool:code_executor
-  - tool:browser
-  - tool:custom
+tool:<工具名称>           # 根据使用的工具动态生成
+  示例: tool:python_interpreter, tool:web_search, tool:file_read
 
-severity:<严重程度>
-  - severity:low            低
-  - severity:medium         中
-  - severity:high           高
-  - severity:critical       严重
+domain:<应用领域>         # 根据任务领域动态生成
+  示例: domain:research, domain:analysis, domain:writing, domain:coding
 
-domain:<应用领域>
-  - domain:research         科研
-  - domain:analysis         分析
-  - domain:writing          写作
-  - domain:coding           编程
-  - domain:data_processing  数据处理
-
-stage:<任务阶段>
-  - stage:planning          规划
-  - stage:execution         执行
-  - stage:verification      验证
-  - stage:debugging         调试
+stage:<任务阶段>          # 根据任务阶段动态生成
+  示例: stage:planning, stage:execution, stage:verification, stage:debugging
 ```
 
 ### 标签生成规则
 
-1. 每个记忆**至少包含**一个 `error:` 标签和一个 `tool:` 标签
-2. `severity` 标签根据错误影响程度选择
+1. 每个记忆**至少包含**一个类型标签（`error:` 或 `success:`）
+2. 根据使用的工具添加 `tool:` 标签
 3. 根据任务内容添加 `domain:` 标签
 4. 根据当前任务阶段添加 `stage:` 标签
 
@@ -170,15 +189,11 @@ stage:<任务阶段>
    - 为什么会犯这个错误？
    - 当时的假设是什么？这些假设有什么问题？
 
-3. **正确做法**（至少50字）：
-   - 应该怎么做才是正确的？
-   - 有哪些替代方案？
-
-4. **关键教训**（至少30字）：
+3. **关键教训**（至少30字）：
    - 这个错误教会了我什么？
    - 今后遇到类似情况应该注意什么？
 
-5. **预防策略**（至少30字）：
+4. **预防策略**（至少30字）：
    - 如何避免再犯同样的错误？
    - 需要建立什么检查机制？
 
@@ -310,7 +325,11 @@ score(doc) = Σ (weight_i / (rank_i(doc) + k)) * weight_factor
 ```
 research-agent-memory/
 ├── memory_store/
-│   ├── memories.jsonl           # 主存储，每行一个记忆JSON
+│   ├── memories/                # 记忆文件存储目录
+│   │   ├── 2026/                # 按年份组织
+│   │   │   ├── 03/              # 按月组织
+│   │   │   │   ├── 2026-03-09-550e8400.md  # 记忆文件
+│   │   │   │   └── ...
 │   └── index/
 │       ├── bm25_index.pkl       # BM25索引
 │       ├── tag_index.json       # 标签倒排索引
@@ -327,27 +346,119 @@ research-agent-memory/
 
 ## 使用方式
 
-### 命令行接口
+### 记录记忆
+
+使用 `cli.py record` 命令记录新的记忆：
 
 ```bash
-# 记录错误记忆
-python scripts/cli.py record --type tool_error \
-    --tags "error:tool_error,tool:python_interpreter,severity:high" \
-    --keywords "pandas,memory_error,read_csv" \
-    --context "任务：分析100万条科研数据..." \
-    --reflection-file reflection.json
+python scripts/cli.py record \
+    --type <记忆类型> \
+    --tags "<标签列表>" \
+    --keywords "<关键词列表>" \
+    --context "<上下文描述>" \
+    --reflection-file <反思文件路径> \
+    --snapshot-file <快照文件路径>
+```
 
-# 召回相关记忆
+**参数说明：**
+- `--type` (必需): 记忆类型，如 `tool_error`, `success`, `reasoning_error` 等
+- `--tags`: 逗号分隔的标签列表，如 `"error:tool_error,tool:python_interpreter,domain:data_processing"`
+- `--keywords`: 逗号分隔的关键词列表，如 `"pandas,memory_error,read_csv"`
+- `--context`: 上下文描述字符串
+- `--reflection-file`: 反思内容JSON文件路径
+- `--snapshot-file`: 错误/成功快照JSON文件路径
+- `--storage`: (可选) 存储目录路径，默认为 `./memory_store`
+
+**示例：**
+```bash
+python scripts/cli.py record \
+    --type tool_error \
+    --tags "error:tool_error,tool:python_interpreter,domain:data_processing" \
+    --keywords "pandas,memory_error,read_csv,chunksize" \
+    --context "任务：分析100万条科研数据，使用pandas进行数据清洗" \
+    --reflection-file ./reflection.json
+```
+
+### 召回记忆
+
+使用 `cli.py recall` 命令召回相关记忆：
+
+```bash
+python scripts/cli.py recall \
+    --query "<查询字符串>" \
+    --tags "<标签过滤>" \
+    --keywords "<关键词过滤>" \
+    --top-k <返回数量> \
+    --threshold <相似度阈值>
+```
+
+**参数说明：**
+- `--query` (必需): 查询字符串，用于混合检索
+- `--tags`: 逗号分隔的标签过滤条件，如 `"tool:python_interpreter,domain:data_processing"`
+- `--keywords`: 逗号分隔的关键词过滤条件
+- `--top-k`: 返回的记忆数量，默认为 5
+- `--threshold`: 相似度阈值，默认为 0.3
+- `--storage`: (可选) 存储目录路径，默认为 `./memory_store`
+
+**示例：**
+```bash
 python scripts/cli.py recall \
     --query "pandas读取大文件内存溢出" \
     --tags "tool:python_interpreter" \
     --top-k 3
+```
 
-# 上下文增强
+### 上下文增强
+
+使用 `cli.py augment` 命令增强提示词：
+
+```bash
+python scripts/cli.py augment \
+    --task "<任务描述>" \
+    --prompt-file <提示词文件路径> \
+    --output <输出文件路径> \
+    --top-k <记忆数量> \
+    --threshold <相似度阈值>
+```
+
+**参数说明：**
+- `--task` (必需): 任务描述
+- `--prompt-file` (必需): 当前提示词文件路径
+- `--output`: (可选) 输出文件路径，不指定则输出到控制台
+- `--top-k`: 引用的记忆数量，默认为 3
+- `--threshold`: 相似度阈值，默认为 0.5
+- `--storage`: (可选) 存储目录路径，默认为 `./memory_store`
+
+**示例：**
+```bash
 python scripts/cli.py augment \
     --task "分析科研数据集" \
-    --prompt "请分析以下数据..."
+    --prompt-file ./current_prompt.txt \
+    --output ./augmented_prompt.txt
 ```
+
+### 查看统计信息
+
+使用 `cli.py stats` 命令查看记忆系统统计：
+
+```bash
+python scripts/cli.py stats [--storage <存储路径>]
+```
+
+### 列出记忆
+
+使用 `cli.py list` 命令列出所有记忆：
+
+```bash
+python scripts/cli.py list \
+    --limit <数量> \
+    --offset <偏移量> \
+    [--storage <存储路径>]
+```
+
+**参数说明：**
+- `--limit`: 列出的记忆数量，默认为 100
+- `--offset`: 偏移量，默认为 0
 
 ### Python API
 
@@ -363,7 +474,6 @@ memory_id = memory_system.record({
     "tags": [
         "error:tool_error",
         "tool:python_interpreter",
-        "severity:high",
         "domain:data_processing",
         "stage:execution"
     ],

@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from typing import List, Dict, Optional, Any
 from pathlib import Path
+import frontmatter
 
 try:
     import faiss
@@ -28,7 +29,7 @@ except ImportError:
 class ResearchAgentMemory:
     def __init__(self, storage_path: str = "./memory_store"):
         self.storage_path = Path(storage_path)
-        self.memories_path = self.storage_path / "memories.jsonl"
+        self.memories_dir = self.storage_path / "memories"
         self.index_path = self.storage_path / "index"
         
         self.memories: List[Dict] = []
@@ -44,20 +45,20 @@ class ResearchAgentMemory:
     def _init_storage(self):
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self.index_path.mkdir(parents=True, exist_ok=True)
-        
-        if not self.memories_path.exists():
-            self.memories_path.touch()
+        self.memories_dir.mkdir(parents=True, exist_ok=True)
     
     def _load_memories(self):
-        if not self.memories_path.exists() or self.memories_path.stat().st_size == 0:
-            return
-            
-        with open(self.memories_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.strip():
+        # 遍历所有记忆文件
+        for root, dirs, files in os.walk(self.memories_dir):
+            for file in files:
+                if file.endswith('.md'):
+                    file_path = os.path.join(root, file)
                     try:
-                        self.memories.append(json.loads(line))
-                    except json.JSONDecodeError:
+                        memory = self._parse_markdown_memory(file_path)
+                        if memory:
+                            self.memories.append(memory)
+                    except Exception as e:
+                        print(f"Error loading memory file {file_path}: {e}")
                         continue
     
     def _init_indexes(self):
@@ -85,8 +86,10 @@ class ResearchAgentMemory:
             text = self._get_searchable_text(mem)
             corpus.append(text.split())
         
-        if corpus:
-            self.bm25_index = BM25Okapi(corpus)
+        # 确保corpus不为空且至少有一个非空文档
+        non_empty_corpus = [doc for doc in corpus if doc]
+        if non_empty_corpus:
+            self.bm25_index = BM25Okapi(non_empty_corpus)
     
     def _build_vector_index(self):
         if not self.memories:
@@ -108,6 +111,122 @@ class ResearchAgentMemory:
         self.vector_index = faiss.IndexFlatL2(dimension)
         self.vector_index.add(np.array(vectors, dtype=np.float32))
         self.vector_valid_indices = valid_indices
+    
+    def _parse_markdown_memory(self, file_path: str) -> Optional[Dict]:
+        """解析Markdown记忆文件"""
+        with open(file_path, 'r', encoding='utf-8') as f:
+            post = frontmatter.load(f)
+        
+        # 提取frontmatter
+        memory = {
+            'memory_id': post.get('memory_id'),
+            'timestamp': post.get('timestamp'),
+            'type': post.get('type'),
+            'tags': post.get('tags', []),
+            'keywords': post.get('keywords', []),
+            'version': post.get('version', '1.0'),
+            'file_path': file_path
+        }
+        
+        # 解析内容
+        content = post.content
+        
+        # 提取上下文
+        context_match = self._extract_section(content, '## 上下文')
+        if context_match:
+            memory['context_string'] = context_match
+        
+        # 提取错误快照
+        error_snapshot = {}
+        error_match = self._extract_section(content, '### 错误信息')
+        if error_match:
+            for line in error_match.split('\n'):
+                line = line.strip()
+                if line.startswith('- 错误类型:'):
+                    error_snapshot['error_type'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 错误消息:'):
+                    error_snapshot['error_message'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 工具调用:'):
+                    error_snapshot['tool_calls'] = [line.split(':', 1)[1].strip()]
+                elif line.startswith('- 推理链:'):
+                    error_snapshot['reasoning_chain'] = [line.split(':', 1)[1].strip()]
+        if error_snapshot:
+            memory['error_snapshot'] = error_snapshot
+        
+        # 提取成功快照
+        success_snapshot = {}
+        success_match = self._extract_section(content, '### 成功信息')
+        if success_match:
+            for line in success_match.split('\n'):
+                line = line.strip()
+                if line.startswith('- 成功类型:'):
+                    success_snapshot['success_type'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 结果:'):
+                    success_snapshot['result'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 工具调用:'):
+                    success_snapshot['tool_calls'] = [line.split(':', 1)[1].strip()]
+                elif line.startswith('- 推理链:'):
+                    success_snapshot['reasoning_chain'] = [line.split(':', 1)[1].strip()]
+        if success_snapshot:
+            memory['success_snapshot'] = success_snapshot
+        
+        # 提取反思
+        reflection = {}
+        error_reflection_match = self._extract_section(content, '### 错误反思')
+        if error_reflection_match:
+            for line in error_reflection_match.split('\n'):
+                line = line.strip()
+                if line.startswith('- 根本原因:'):
+                    reflection['root_cause'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 错误描述:'):
+                    reflection['what_went_wrong'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 正确做法:'):
+                    reflection['what_should_happen'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 关键教训:'):
+                    reflection['lesson_learned'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 预防策略:'):
+                    reflection['prevention_strategy'] = line.split(':', 1)[1].strip()
+        
+        success_reflection_match = self._extract_section(content, '### 成功反思')
+        if success_reflection_match:
+            for line in success_reflection_match.split('\n'):
+                line = line.strip()
+                if line.startswith('- 成功因素:'):
+                    reflection['success_factors'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 最佳实践:'):
+                    reflection['best_practice'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 关键经验:'):
+                    reflection['key_experience'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 推广策略:'):
+                    reflection['promotion_strategy'] = line.split(':', 1)[1].strip()
+        if reflection:
+            memory['reflection'] = reflection
+        
+        # 提取元数据
+        metadata = {}
+        metadata_match = self._extract_section(content, '## 元数据')
+        if metadata_match:
+            for line in metadata_match.split('\n'):
+                line = line.strip()
+                if line.startswith('- 纠正状态:'):
+                    metadata['success_after_correction'] = line.split(':', 1)[1].strip().lower() == 'true'
+                elif line.startswith('- 纠正措施:'):
+                    metadata['correction_applied'] = line.split(':', 1)[1].strip()
+                elif line.startswith('- 对话轮次:'):
+                    metadata['conversation_turn'] = int(line.split(':', 1)[1].strip())
+        if metadata:
+            memory['metadata'] = metadata
+        
+        return memory
+    
+    def _extract_section(self, content: str, section_header: str) -> Optional[str]:
+        """提取Markdown章节内容"""
+        import re
+        pattern = rf'{section_header}\s*(.*?)(?=^##|$)'  # 匹配到下一个##或文件结束
+        match = re.search(pattern, content, re.DOTALL | re.MULTILINE)
+        if match:
+            return match.group(1).strip()
+        return None
     
     def _get_searchable_text(self, memory: Dict) -> str:
         parts = [
@@ -178,8 +297,120 @@ class ResearchAgentMemory:
             return []
     
     def _save_memory(self, memory: Dict):
-        with open(self.memories_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(memory, ensure_ascii=False) + '\n')
+        """保存记忆为Markdown文件"""
+        # 生成文件名
+        timestamp = memory.get('timestamp', datetime.now().isoformat())
+        memory_id = memory.get('memory_id', self._generate_id())
+        
+        # 解析时间戳以创建目录结构
+        try:
+            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            year = str(dt.year)
+            month = f'{dt.month:02d}'
+        except Exception:
+            # 如果时间戳格式错误，使用当前时间
+            dt = datetime.now()
+            year = str(dt.year)
+            month = f'{dt.month:02d}'
+        
+        # 创建目录
+        year_dir = self.memories_dir / year
+        month_dir = year_dir / month
+        month_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 生成文件名
+        file_name = f"{dt.strftime('%Y-%m-%d')}-{memory_id[:8]}.md"
+        file_path = month_dir / file_name
+        
+        # 构建Markdown内容
+        frontmatter_data = {
+            'memory_id': memory_id,
+            'timestamp': timestamp,
+            'type': memory.get('type', 'unknown'),
+            'tags': memory.get('tags', []),
+            'keywords': memory.get('keywords', []),
+            'version': memory.get('version', '1.0')
+        }
+        
+        content = []
+        content.append('# 记忆记录')
+        content.append('')
+        
+        # 上下文
+        content.append('## 上下文')
+        content.append('')
+        content.append(memory.get('context_string', ''))
+        content.append('')
+        
+        # 快照
+        content.append('## 快照')
+        content.append('')
+        
+        # 错误信息
+        error_snapshot = memory.get('error_snapshot', {})
+        if error_snapshot:
+            content.append('### 错误信息')
+            content.append(f'- 错误类型: {error_snapshot.get("error_type", "")}')
+            content.append(f'- 错误消息: {error_snapshot.get("error_message", "")}')
+            tool_calls = error_snapshot.get('tool_calls', [])
+            content.append(f'- 工具调用: {tool_calls[0] if tool_calls else ""}')
+            reasoning_chain = error_snapshot.get('reasoning_chain', [])
+            content.append(f'- 推理链: {reasoning_chain[0] if reasoning_chain else ""}')
+            content.append('')
+        
+        # 成功信息
+        success_snapshot = memory.get('success_snapshot', {})
+        if success_snapshot:
+            content.append('### 成功信息')
+            content.append(f'- 成功类型: {success_snapshot.get("success_type", "")}')
+            content.append(f'- 结果: {success_snapshot.get("result", "")}')
+            tool_calls = success_snapshot.get('tool_calls', [])
+            content.append(f'- 工具调用: {tool_calls[0] if tool_calls else ""}')
+            reasoning_chain = success_snapshot.get('reasoning_chain', [])
+            content.append(f'- 推理链: {reasoning_chain[0] if reasoning_chain else ""}')
+            content.append('')
+        
+        # 反思
+        content.append('## 反思')
+        content.append('')
+        
+        # 错误反思
+        reflection = memory.get('reflection', {})
+        if reflection.get('root_cause') or reflection.get('what_went_wrong'):
+            content.append('### 错误反思')
+            content.append(f'- 根本原因: {reflection.get("root_cause", "")}')
+            content.append(f'- 错误描述: {reflection.get("what_went_wrong", "")}')
+            content.append(f'- 正确做法: {reflection.get("what_should_happen", "")}')
+            content.append(f'- 关键教训: {reflection.get("lesson_learned", "")}')
+            content.append(f'- 预防策略: {reflection.get("prevention_strategy", "")}')
+            content.append('')
+        
+        # 成功反思
+        if reflection.get('success_factors') or reflection.get('best_practice'):
+            content.append('### 成功反思')
+            content.append(f'- 成功因素: {reflection.get("success_factors", "")}')
+            content.append(f'- 最佳实践: {reflection.get("best_practice", "")}')
+            content.append(f'- 关键经验: {reflection.get("key_experience", "")}')
+            content.append(f'- 推广策略: {reflection.get("promotion_strategy", "")}')
+            content.append('')
+        
+        # 元数据
+        metadata = memory.get('metadata', {})
+        if metadata:
+            content.append('## 元数据')
+            content.append(f'- 纠正状态: {metadata.get("success_after_correction", False)}')
+            content.append(f'- 纠正措施: {metadata.get("correction_applied", "")}')
+            content.append(f'- 对话轮次: {metadata.get("conversation_turn", 0)}')
+        
+        # 创建Markdown文件
+        post = frontmatter.Post('\n'.join(content), **frontmatter_data)
+        
+        # 写入文件
+        with open(file_path, 'wb') as f:
+            frontmatter.dump(post, f, encoding='utf-8')
+        
+        # 保存文件路径到记忆对象
+        memory['file_path'] = str(file_path)
     
     def _update_indexes(self, memory: Dict):
         idx = len(self.memories) - 1

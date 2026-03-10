@@ -24,7 +24,7 @@ research-agent-memory/
 ### 基本依赖
 
 ```bash
-pip install sentence-transformers faiss-cpu rank-bm25
+pip install sentence-transformers rank-bm25 faiss-cpu python-frontmatter
 ```
 
 
