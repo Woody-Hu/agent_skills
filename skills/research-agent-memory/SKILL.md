@@ -1,6 +1,6 @@
 ---
 name: research-agent-memory
-description: "Research agent memory system. Records errors, reflections, and experiences, supports dynamic hybrid recall. Invoke when agent makes mistakes, receives user feedback, or needs to recall past experiences."
+description: "agent memory system. each time when meet wrong result, errors, reflections, user hint and experiences, supports memory recall before each agent llm execute. Invoke when agent meet wrong result, makes mistakes, receives user feedback (like you are wrong, you have wrong result, remember this....), and before each time execute to recall memory."
 ---
 
 # Research Agent Memory System
